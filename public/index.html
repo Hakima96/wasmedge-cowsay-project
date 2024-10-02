@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cowsay with WasmEdge</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        pre { background-color: #f0f0f0; padding: 10px; border-radius: 5px; }
+        input, button { margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <h1>Cowsay with WasmEdge</h1>
+    
+    <h2>REST API</h2>
+    <input type="text" id="restInput" placeholder="Enter a message">
+    <button onclick="sendRestRequest()">Send REST Request</button>
+    <pre id="restOutput"></pre>
+
+    <h2>WebSocket</h2>
+    <input type="text" id="wsInput" placeholder="Enter a message">
+    <button onclick="sendWsMessage()">Send WebSocket Message</button>
+    <pre id="wsOutput"></pre>
+
+    <script>
+        // REST API
+        async function sendRestRequest() {
+            const message = document.getElementById('restInput').value;
+            const response = await fetch(`/api/cowsay?message=${encodeURIComponent(message)}`, {
+                headers: {
+                    'Authorization': 'Basic ' + btoa('admin:supersecret')
+                }
+            });
+            const data = await response.json();
+            document.getElementById('restOutput').textContent = data.output;
+        }
+
+        // WebSocket
+        const ws = new WebSocket(`ws://${window.location.host}`);
+        ws.onmessage = (event) => {
+            document.getElementById('wsOutput').textContent = event.data;
+        };
+
+        function sendWsMessage() {
+            const message = document.getElementById('wsInput').value;
+            ws.send(message);
+        }
+    </script>
+</body>
+</html>
